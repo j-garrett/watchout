@@ -1,5 +1,22 @@
 /* your beautiful css styling goes here! */
 
+
 /* Note: an asteroid image is included in this repo.
 Feel free to use it if you like. */
 
+.board {
+  height: 400px;
+  width: 600px;
+  background-color: lightgrey;
+}
+
+.scoreboard {
+  font-size: 20px;
+}
+
+.enemy {
+  background-image: url('asteroid.png');
+  background-size: 100%;
+  width: 75px;
+  height: 75px;
+}
