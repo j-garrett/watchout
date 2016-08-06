@@ -8,9 +8,42 @@
     'collisions': 0
   };
 
+
+
 //-------------------------------------------------------------------//
 
+//-------------------------------------------------------------------//
+// Button Functions                                                  //
+//-------------------------------------------------------------------//
+  var gameStart = function () {
+    asteroids = [];
+    for (var i = 0; i < 5; i++) {
+      asteroids.push(generateAsteroid());
+    }
+    updateBoard(asteroids);
 
+    window.gameOn = setInterval(function () {
+      return updateBoard(asteroids);
+    }, 50);
+
+    window.tickDifficulty = setInterval(function () {
+      if (asteroids.length >= 15) {
+        return asteroids.forEach(function(x) {
+          if (x.size < 50) {
+            x.size++;          
+          }
+          return;
+        });
+      } else {
+        return asteroids.push(generateAsteroid());
+      }
+    }, Math.random() * 5000 + 2000);
+
+    window.checkForDeath = setInterval(deathCheck, 10);
+  };
+  
+
+//-------------------------------------------------------------------//
 
 
 
@@ -31,26 +64,30 @@
     var newAsteroid = {};
     newAsteroid.number = asteroids.length + 1;
     var temp = Math.floor(Math.random() * 16777216);
-    newAsteroid.color = '#' + temp.toString(16);
+    newAsteroid.color = 'hsl(360, 100%, ' + (Math.random() * 33 + 33) + '%)';
     newAsteroid.size = Math.floor(Math.random() * 15 + 10);
     return newAsteroid;
   };
 
-  for (var i = 0; i < 5; i++) {
-    asteroids.push(generateAsteroid());
-  }
+  
 
   var updateBoard = function (data) {
     var selection = d3.select('.board').selectAll('.enemy');
 
     selection
       .data(data, function (d) { return d.number; })
-      .transition().duration(3000)
+      .transition()
+      .ease('linear')
+      .duration(1000)
       .attr('cx', function () {
-        return Math.random() * svgWidth;
+        return playerLocation[0];
+        // return Math.random() * svgWidth;
+        // return 500;
       })
       .attr('cy', function() {
-        return Math.random() * svgHeight;
+        return playerLocation[1];
+        // return Math.random() * svgHeight;
+        // return 500;
       })
       .attr('r', function (d) {
         return d.size;
@@ -62,10 +99,10 @@
       .append('circle')
       .attr('class', 'enemy')
       .attr('cx', function() {
-        return svgWidth * 2;
+        return svgWidth / 2;
       })
       .attr('cy', function() {
-        return svgHeight + 800;
+        return svgHeight / 2;
       })
       .attr('r', function (d) {
         return d.size;
@@ -80,6 +117,7 @@
       .data(data, function (d) { return d.number; })
       .exit()
       .transition().duration(3000)
+      .ease('linear')
       .attr('cy', function () {
         return svgHeight - 800;
       })
@@ -113,19 +151,7 @@
 // Timers and Difficulty Increase                                    //
 //-------------------------------------------------------------------//
 
-  var gameOn = setInterval(function () {
-    return updateBoard(asteroids);
-  }, 2000);
-
-  var tickDifficulty = setInterval(function () {
-    if (asteroids.length >= 10) {
-      return asteroids.forEach(function(x) {
-        return x.size++;
-      });
-    } else {
-      return asteroids.push(generateAsteroid());
-    }
-  }, 10000);
+  
 
 //-------------------------------------------------------------------//
 
@@ -143,37 +169,37 @@
     
 
     allEnemies[0].forEach(function (enemy) {
-      if (Math.abs(playerLocation[0] - enemy.attributes.cx.value ) < radius && Math.abs(playerLocation[1] - enemy.attributes.cy.value) < radius) {
-        console.log('tagged!');
+      if ((Math.abs(playerLocation[0] - enemy.attributes.cx.value) - 15) < radius && (Math.abs(playerLocation[1] - enemy.attributes.cy.value) - 15) < radius) {
+        // console.log(radius);
+        clearInterval(window.gameOn);
+        clearInterval(window.tickDifficulty);
+        clearInterval(window.checkForDeath);
+        asteroids = [];
+        updateBoard(asteroids);
       }
     });
   };
 
+  
 
-//   var simulation = d3.forceSimulation(allEnemies);
-//   simulation.on('tick', function() {
-// updateBoard(asteroids);
-//   });
+  //   var simulation = d3.forceSimulation(allEnemies);
+  //   simulation.on('tick', function() {
+  // updateBoard(asteroids);
+  //   });
 
-  setInterval(deathCheck, 5);
+  // var selection = d3.select('.board').selectAll('.enemy');
 
-
-    // var selection = d3.select('.board').selectAll('.enemy');
-
-    // selection
-    //   .data(data, function (d) { return d.number; })
-    //   .transition().duration(3000)
-    //   .attr('cx', function () {
-    //     return Math.random() * svgWidth;
-    //   })
-
-
-
-
-
-
+  // selection
+  //   .data(data, function (d) { return d.number; })
+  //   .transition().duration(3000)
+  //   .attr('cx', function () {
+  //     return Math.random() * svgWidth;
+  //   })
 
 //-------------------------------------------------------------------//
+
+
+
 
 // var dataset = [5, 10, 15, 20, 25];
 // d3.select('body').selectAll('p')
