@@ -16,26 +16,23 @@
 // Button Functions                                                  //
 //-------------------------------------------------------------------//
   var gameStart = function () {
-    asteroids = [];
-    for (var i = 0; i < 5; i++) {
-      asteroids.push(generateAsteroid());
-    }
-    updateBoard(asteroids);
+    enemies.push(new Seeker);
+    updateBoard(enemies);
 
     window.gameOn = setInterval(function () {
-      return updateBoard(asteroids);
-    }, 50);
+      updateBoard(enemies);
+    }, 200);
 
     window.tickDifficulty = setInterval(function () {
-      if (asteroids.length >= 15) {
-        return asteroids.forEach(function(x) {
+      if (enemies.length >= 15) {
+        enemies.forEach(function(x) {
           if (x.size < 50) {
             x.size++;          
           }
           return;
         });
       } else {
-        return asteroids.push(generateAsteroid());
+        enemies.push(generateEnemy());
       }
     }, Math.random() * 5000 + 2000);
 
@@ -58,51 +55,59 @@
 
   //enemy component
   //an array of x,y coordinates for each?
-  var asteroids = [];
+  var enemies = [];
 
-  var generateAsteroid = function () {
-    var newAsteroid = {};
-    newAsteroid.number = asteroids.length + 1;
-    var temp = Math.floor(Math.random() * 16777216);
-    newAsteroid.color = 'hsl(360, 100%, ' + (Math.random() * 33 + 33) + '%)';
-    newAsteroid.size = Math.floor(Math.random() * 15 + 10);
-    return newAsteroid;
+  // var generateEnemy = function () {
+  //   var newAsteroid = {};
+  //   newAsteroid.number = enemies.length + 1;
+  //   var temp = Math.floor(Math.random() * 16777216);
+  //   newAsteroid.color = 'hsl(360, 100%, ' + (Math.random() * 33 + 33) + '%)';
+  //   newAsteroid.size = Math.floor(Math.random() * 15 + 10);
+  //   return newAsteroid;
+  // };
+
+  var generateEnemy = function () {
+    enemyCount++;
+    if (enemyCount % 5 === 0) {
+      return new Seeker;
+    }
+    // return new Seeker;
+    return new Asteroid;
   };
-
   
 
   var updateBoard = function (data) {
     var selection = d3.select('.board').selectAll('.enemy');
 
     selection
-      .data(data, function (d) { return d.number; })
+      .data(data, function (d) { return d.id; })
       .transition()
       .ease('linear')
-      .duration(1000)
-      .attr('cx', function () {
-        return playerLocation[0];
-        // return Math.random() * svgWidth;
-        // return 500;
+      .duration(function(d) {
+        return d.duration;
       })
-      .attr('cy', function() {
-        return playerLocation[1];
-        // return Math.random() * svgHeight;
-        // return 500;
+      .attr('cx', function (d) {
+        return d.target()[0];
+      })
+      .attr('cy', function(d) {
+        return d.target()[1];
       })
       .attr('r', function (d) {
         return d.size;
       });
 
     selection
-      .data(data, function (d) { return d.number; })
+      .data(data, function (d) { return d.id; })
       .enter()
       .append('circle')
       .attr('class', 'enemy')
-      .attr('cx', function() {
-        return svgWidth / 2;
+      .attr('cx', function(d) {
+        return d.currentLocation[0];
+        // return 500;
       })
-      .attr('cy', function() {
-        return svgHeight / 2;
+      .attr('cy', function(d) {
+        return d.currentLocation[1];
+        // return 500;
       })
       .attr('r', function (d) {
         return d.size;
@@ -114,7 +119,7 @@
       .style('stroke-width', '5px');
 
     selection
-      .data(data, function (d) { return d.number; })
+      .data(data, function (d) { return d.id; })
       .exit()
       .transition().duration(3000)
       .ease('linear')
@@ -124,7 +129,7 @@
       .remove();
   };
 
-  updateBoard(asteroids);
+  updateBoard(enemies);
 
 //-------------------------------------------------------------------//
 
@@ -169,13 +174,13 @@
     
 
     allEnemies[0].forEach(function (enemy) {
-      if ((Math.abs(playerLocation[0] - enemy.attributes.cx.value) - 15) < radius && (Math.abs(playerLocation[1] - enemy.attributes.cy.value) - 15) < radius) {
+      if ((Math.abs(playerLocation[0] - enemy.attributes.cx.value) - 15) < enemy.attributes.r.value && (Math.abs(playerLocation[1] - enemy.attributes.cy.value) - 15) < enemy.attributes.r.value) {
         // console.log(radius);
         clearInterval(window.gameOn);
         clearInterval(window.tickDifficulty);
         clearInterval(window.checkForDeath);
-        asteroids = [];
-        updateBoard(asteroids);
+        enemies = [];
+        updateBoard(enemies);
       }
     });
   };
@@ -184,7 +189,7 @@
 
   //   var simulation = d3.forceSimulation(allEnemies);
   //   simulation.on('tick', function() {
-  // updateBoard(asteroids);
+  // updateBoard(enemies);
   //   });
 
   // var selection = d3.select('.board').selectAll('.enemy');
@@ -219,7 +224,7 @@
 
 
 // d3.select('.board').selectAll('div')
-//   .data(asteroids)
+//   .data(enemies)
 //   .enter()
 //   .append('div')
 //   .attr('class', 'enemy');

@@ -10,8 +10,11 @@ Feel free to use it if you like. */
   background-color: lightgrey;
 }
 
-.scoreboard {
+.scoreboard,
+.scoreboard * {
   font-size: 20px;
+  display: inline;
+  float: right;
 }
 
 .enemy {
