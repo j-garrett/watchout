@@ -38,7 +38,7 @@
 
   for (var i = 0; i < 5; i++) {
     asteroids.push(generateAsteroid());
-  };
+  }
 
   var updateBoard = function (data) {
     var selection = d3.select('.board').selectAll('.enemy');
@@ -62,10 +62,10 @@
       .append('circle')
       .attr('class', 'enemy')
       .attr('cx', function() {
-        return svgWidth / 2;
+        return svgWidth * 2;
       })
       .attr('cy', function() {
-        return svgHeight - 800;
+        return svgHeight + 800;
       })
       .attr('r', function (d) {
         return d.size;
@@ -95,10 +95,11 @@
 // Player Handler                                                    //
 //-------------------------------------------------------------------//
   var player = svg.select('.player-ship');
+  var playerLocation;
 
   svg.on('mousemove', function() {
-    var playerLocation = d3.mouse(this);
-
+    playerLocation = d3.mouse(this);
+    gameValues['current score'] += 0.1;
     player
       .attr('transform', 'translate(' + (playerLocation[0] - 30) + ', ' + (playerLocation[1] - 30) + ')');
 
@@ -132,21 +133,39 @@
 //-------------------------------------------------------------------//
 // Hit Detection & Death Handlers                                    //
 //-------------------------------------------------------------------//
-  var allCircles = d3.select('svg').selectAll('circle');
-  // var deathCheck = function () {
-  //   allCircles.forEach(function (circle) {
-  //     if (circle.x)
-  //   })
-  // }
+  var deathCheck = function () {
+    var allEnemies = d3.select('svg').selectAll('.enemy');
+    
+    var centerX = allEnemies.attr('cx');
+    var centerY = allEnemies.attr('cy');
+    var radius = allEnemies.attr('r');
 
-  // var
+    
+
+    allEnemies[0].forEach(function (enemy) {
+      if (Math.abs(playerLocation[0] - enemy.attributes.cx.value ) < radius && Math.abs(playerLocation[1] - enemy.attributes.cy.value) < radius) {
+        console.log('tagged!');
+      }
+    });
+  };
 
 
+//   var simulation = d3.forceSimulation(allEnemies);
+//   simulation.on('tick', function() {
+// updateBoard(asteroids);
+//   });
+
+  setInterval(deathCheck, 5);
 
 
+    // var selection = d3.select('.board').selectAll('.enemy');
 
-
-
+    // selection
+    //   .data(data, function (d) { return d.number; })
+    //   .transition().duration(3000)
+    //   .attr('cx', function () {
+    //     return Math.random() * svgWidth;
+    //   })
 
 
 
