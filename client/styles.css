@@ -10,18 +10,17 @@ Feel free to use it if you like. */
   background-color: lightgrey;
 }
 
-.scoreboard,
-.scoreboard * {
-  font-size: 20px;
-  display: inline;
-  float: right;
-}
 
 .enemy {
   background-image: url('asteroid.png');
   background-size: 100%;
   width: 75px;
   height: 75px;
+}
+
+.scoreboard * {
+  padding: 10px;
+  display: inline;
 }
 
 .player-shield{

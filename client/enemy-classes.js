@@ -43,9 +43,9 @@ Seeker.prototype.target = function () {
 
 var Asteroid = function(id) {
   var color = 'hsl(215, 100%, ' + (Math.random() * 20 + 25) + '%)';
-  var start = [-50, Math.random() * svgHeight - Math.random() * svgHeight];
-  this.destination = [svgWidth + 200, Math.random() * svgHeight * 2];
-  Enemy.call(this, enemyCount, color, 50, this.destination, start, 5000);
+  var start = [-100, Math.random() * svgHeight];
+  this.destination = [svgWidth + 200, Math.random() * svgHeight];
+  Enemy.call(this, enemyCount, color, 80, this.destination, start, 10000);
 };
 
 Asteroid.prototype = Object.create(Enemy.prototype);

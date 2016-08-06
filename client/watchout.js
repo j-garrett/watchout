@@ -30,23 +30,15 @@
   var gameStart = function () {
     enemies.push(new Seeker);
     updateBoard(enemies);
+    scoreData[1] = 0;
 
     window.gameOn = setInterval(function () {
       updateBoard(enemies);
     }, 500);
 
     window.tickDifficulty = setInterval(function () {
-      if (enemies.length >= 15) {
-        enemies.forEach(function(x) {
-          if (x.size < 50) {
-            x.size++;          
-          }
-          return;
-        });
-      } else {
-        enemies.push(generateEnemy());
-      }
-    }, Math.random() * 5000 + 2000);
+      enemies.push(generateEnemy());
+    }, Math.random() * 3000 + 2000);
 
     window.updateScore = setInterval(scoreUpdater, 10);
 
@@ -214,7 +206,6 @@
         clearInterval(window.checkForDeath);
         clearInterval(window.updateScore);
         scoreData[0] = Math.max(scoreData[0], scoreData[1]);
-        scoreData[1] = 0;
         scoreData[2] += 1;
         scoreUpdater();
 
