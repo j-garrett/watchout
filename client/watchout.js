@@ -8,6 +8,18 @@
     'collisions': 0
   };
 
+  var scoreData = [0, 0, 0];
+
+  
+
+  var scoreUpdater = function () {
+    var score = d3.select('.scoreboard').selectAll('span');
+    score
+      .data(scoreData)
+      .text(function (d) {
+        return Math.floor(d);
+      });
+  };
 
 
 //-------------------------------------------------------------------//
@@ -21,7 +33,7 @@
 
     window.gameOn = setInterval(function () {
       updateBoard(enemies);
-    }, 200);
+    }, 500);
 
     window.tickDifficulty = setInterval(function () {
       if (enemies.length >= 15) {
@@ -35,6 +47,8 @@
         enemies.push(generateEnemy());
       }
     }, Math.random() * 5000 + 2000);
+
+    window.updateScore = setInterval(scoreUpdater, 10);
 
     window.checkForDeath = setInterval(deathCheck, 10);
   };
@@ -71,15 +85,18 @@
     if (enemyCount % 5 === 0) {
       return new Seeker;
     }
-    // return new Seeker;
+      // return new Seeker;
     return new Asteroid;
   };
   
 
   var updateBoard = function (data) {
-    var selection = d3.select('.board').selectAll('.enemy');
+    var eleEnemies = d3.select('.board').selectAll('.enemy');
+    var seekers = d3.select('.board').selectAll('.seeker');
+    var asteroids = d3.select('.board').selectAll('.asteroid');
+    
 
-    selection
+    seekers
       .data(data, function (d) { return d.id; })
       .transition()
       .ease('linear')
@@ -96,18 +113,18 @@
         return d.size;
       });
 
-    selection
+    eleEnemies
       .data(data, function (d) { return d.id; })
       .enter()
       .append('circle')
-      .attr('class', 'enemy')
+      .attr('class', function(d) {
+        return 'enemy ' + d.constructor + ' ' + d.id;
+      })
       .attr('cx', function(d) {
         return d.currentLocation[0];
-        // return 500;
       })
       .attr('cy', function(d) {
         return d.currentLocation[1];
-        // return 500;
       })
       .attr('r', function (d) {
         return d.size;
@@ -116,17 +133,35 @@
         return d.color;
       })
       .style('stroke', 'black')
-      .style('stroke-width', '5px');
+      .style('stroke-width', '5px')
+      .transition()
+      .ease('linear')
+      .duration(function(d) {
+        return d.duration;
+      })
+      .attr('cx', function (d) {
+        return d.target()[0];
+      })
+      .attr('cy', function(d) {
+        return d.target()[1];
+      })
+      .each('end', function (d, i) {
+        d.target();
+      });
 
-    selection
+    eleEnemies
       .data(data, function (d) { return d.id; })
       .exit()
-      .transition().duration(3000)
+      .transition().duration(700)
       .ease('linear')
-      .attr('cy', function () {
-        return svgHeight - 800;
+      .style('stroke-width', 0)
+      .attr('r', function (d) {
+        return d.size * 2;
       })
+      .style('opacity', 0)
       .remove();
+
+
   };
 
   updateBoard(enemies);
@@ -142,11 +177,8 @@
 
   svg.on('mousemove', function() {
     playerLocation = d3.mouse(this);
-    gameValues['current score'] += 0.1;
     player
       .attr('transform', 'translate(' + (playerLocation[0] - 30) + ', ' + (playerLocation[1] - 30) + ')');
-
-
   });
 
 
@@ -170,6 +202,7 @@
     var centerX = allEnemies.attr('cx');
     var centerY = allEnemies.attr('cy');
     var radius = allEnemies.attr('r');
+    scoreData[1] += 0.1;
 
     
 
@@ -179,6 +212,12 @@
         clearInterval(window.gameOn);
         clearInterval(window.tickDifficulty);
         clearInterval(window.checkForDeath);
+        clearInterval(window.updateScore);
+        scoreData[0] = Math.max(scoreData[0], scoreData[1]);
+        scoreData[1] = 0;
+        scoreData[2] += 1;
+        scoreUpdater();
+
         enemies = [];
         updateBoard(enemies);
       }
@@ -186,45 +225,3 @@
   };
 
   
-
-  //   var simulation = d3.forceSimulation(allEnemies);
-  //   simulation.on('tick', function() {
-  // updateBoard(enemies);
-  //   });
-
-  // var selection = d3.select('.board').selectAll('.enemy');
-
-  // selection
-  //   .data(data, function (d) { return d.number; })
-  //   .transition().duration(3000)
-  //   .attr('cx', function () {
-  //     return Math.random() * svgWidth;
-  //   })
-
-//-------------------------------------------------------------------//
-
-
-
-
-// var dataset = [5, 10, 15, 20, 25];
-// d3.select('body').selectAll('p')
-//   .data(dataset)
-//   .enter()
-//   .append('p')
-//   .text(function(d, i) {
-//     return 'the data value is: ' + d + ' at index ' + i;
-//   })
-//   .style('color', function(d, i) {
-//     if (i % 2 === 0) {
-//       return 'black';
-//     } else {
-//       return 'red';
-//     }
-//   });
-
-
-// d3.select('.board').selectAll('div')
-//   .data(enemies)
-//   .enter()
-//   .append('div')
-//   .attr('class', 'enemy');

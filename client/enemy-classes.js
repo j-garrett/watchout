@@ -1,19 +1,10 @@
-// var generateAsteroid = function () {
-//   var newAsteroid = {};
-//   newAsteroid.number = asteroids.length + 1;
-//   var temp = Math.floor(Math.random() * 16777216);
-//   newAsteroid.color = '#' + temp.toString(16);
-//   newAsteroid.size = Math.floor(Math.random() * 15 + 10);
-//   return newAsteroid;
-// };
-
 var enemyCount = 0;
 
 var Enemy = function(id, color, size, target, currentLocation, duration) {
-  this.id = id;
+  this.id = 'enemy' + id.toString();
   this.color = color;
   this.class = 'enemy';
-  this.target = target;
+  // this.target = target;
   this.currentLocation = currentLocation;
   this.duration = duration;
   this.size = size;
@@ -26,32 +17,50 @@ Enemy.prototype.method = function() {
 var Seeker = function(id) {
   var color = 'hsl(360, 100%, ' + (Math.random() * 33 + 33) + '%)';
   var start = [svgWidth + 50, svgHeight - 50];
-  var target = function () { 
-    var move = 0;
-    if (move % 2 === 0) {
-      return playerLocation; 
-    }
-    
-  };
-  Enemy.call(this, enemyCount, color, 10, target, start, 1000);
+  this.move = 0;
+  Enemy.call(this, enemyCount, color, 10, undefined, start, 1000);
 };
 
 Seeker.prototype = Object.create(Enemy.prototype);
-Seeker.prototype.constructor = 'Seeker';
-Seeker.prototype.move = function() {
-  // SEEEEEK
+Seeker.prototype.constructor = 'seeker';
+Seeker.prototype.target = function () { 
+  this.move++;
+  var destination = [];
+
+  if (this.move % 5 === 0) {
+    var node = d3.select('.board').select('.' + this.id);
+    this.currentLocation = [node.attr('cx'), node.attr('cy')]; 
+    destination.push(playerLocation[0] + 2 * (playerLocation[0] - this.currentLocation[0]));
+    destination.push(playerLocation[1] + 2 * (playerLocation[1] - this.currentLocation[1]));
+  } else if (this.move % 3 === 0) {
+    destination = [Math.random() * svgWidth, Math.random() * svgHeight];
+  } else {
+    destination = [playerLocation[0], playerLocation[1]];  
+  }
+
+  return destination; 
 };
 
 var Asteroid = function(id) {
   var color = 'hsl(215, 100%, ' + (Math.random() * 20 + 25) + '%)';
   var start = [-50, Math.random() * svgHeight - Math.random() * svgHeight];
-  var target = [svgWidth + 50, Math.random() * svgHeight * 2];
-  var getTarget = function () { return target; };
-  Enemy.call(this, enemyCount, color, 50, getTarget, start, 5000);
+  this.destination = [svgWidth + 200, Math.random() * svgHeight * 2];
+  Enemy.call(this, enemyCount, color, 50, this.destination, start, 5000);
 };
 
 Asteroid.prototype = Object.create(Enemy.prototype);
-Asteroid.prototype.constructor = 'Asteroid';
-Asteroid.prototype.move = function() {
-  // FLOAT DIAGONALLY
+Asteroid.prototype.constructor = 'asteroid';
+Asteroid.prototype.target = function() {
+  var node = d3.select('.board').select('.' + this.id);
+  this.currentLocation = [node.attr('cx'), node.attr('cy')];
+  if (this.currentLocation[0] > 1099) {
+    enemies.splice(enemies.indexOf(this), 1);
+  }
+  return this.destination;
 };
+
+
+
+
+
+
