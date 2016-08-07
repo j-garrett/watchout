@@ -3,6 +3,8 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+
+
 app.use('/', express.static(__dirname + '/client/'));
 
 app.get('/', function (req, res) {
@@ -17,5 +19,7 @@ io.on('connection', function (socket) {
 });
 
 
-
+server.listen(3000, function () {
+  console.log('running server on port 3000');
+});
 
